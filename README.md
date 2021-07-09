@@ -5,6 +5,8 @@ A Lambda function will send every notification arriving to SNS to Slack using a 
 
 This app is built using AWS SAM and required SAM CLI https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html 
 
+![Alt text](images/example-slack.png?raw=true "Example Slack message")
+
 ## Lambda Function
 The Lambda function is written in Python and is using AWS Lambda Powertools https://awslabs.github.io/aws-lambda-powertools-python/latest/
 Lambda Powertools is set to:
