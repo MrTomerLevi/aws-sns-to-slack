@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: An Amazon SNS trigger that sends alarms to Slack
+
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+    - prod
+    - develop
+  SlackHookURL:
+    Type: String
+  SlackChannel:
+    Type: String
+
+Globals:
+  Function:
+    Tracing: Active
+    Timeout: 30
+
+Resources:
+
+  LambdaSlack:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "alerting-slack-lambda-${Env}"
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      CodeUri: app/services/slack
+      Description: An SNS trigger that routes alarms to Slack.
+      MemorySize: 128
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: !Sub "monitoring-and-alerting-${Env}"
+          POWERTOOLS_METRICS_NAMESPACE: !Sub "monitoring-and-alerting-${Env}"
+          POWERTOOLS_LOGGER_LOG_EVENT: true
+          LOG_LEVEL: info
+          SLACK_HOOK_URL: !Ref SlackHookURL
+          ENV: !Ref Env
+          SLACK_CHANNEL: !Ref SlackChannel
+      Timeout: 20
+      Events:
+        SNS1:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopicAlerting
+
+  SNSTopicAlerting:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub "alerting-sns-topic-${Env}"
+
+  MonitoringSNSTopicArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "alerting-sns-topic-arn-${Env}"
+      Type: String
+      Value: !Ref SNSTopicAlerting
+      Description: SSM Parameter for alerting SNS topic.
+      Tags:
+        Environment: !Ref Env
+
+Outputs:
+  SNSTopicAlertingArn:
+    Description: "Alerting SNS Topic ARN"
+    Value: !Ref SNSTopicAlerting

@@ -1,0 +1,5 @@
+requests==2.25.*
+aws-lambda-powertools==1.*
+
+#pytest
+#pytest_mock
