@@ -65,3 +65,5 @@ Outputs:
   SNSTopicAlertingArn:
     Description: "Alerting SNS Topic ARN"
     Value: !Ref SNSTopicAlerting
+    Export:
+      Name: !Sub ${AWS::StackName}-SNSTopicAlerting
